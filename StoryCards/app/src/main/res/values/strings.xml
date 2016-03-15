@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Story Cards</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_story_details">Story Details</string>
+    <string name="follow">Follow</string>
+    <string name="following">Following</string>
 </resources>
