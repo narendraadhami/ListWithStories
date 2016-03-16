@@ -20,11 +20,11 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/story_cards_recycler_view"
+    <ListView
+        android:id="@+id/story_cards_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize">
-    </android.support.v7.widget.RecyclerView>
+    </ListView>
 
 </android.support.design.widget.CoordinatorLayout>

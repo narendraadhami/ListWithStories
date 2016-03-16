@@ -1,19 +1,19 @@
 package com.dhami.andy.storycards.activities;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.dhami.andy.storycards.R;
 import com.dhami.andy.storycards.adapters.StoryCardsListAdapter;
 import com.dhami.andy.storycards.constants.AppConstants;
+import com.dhami.andy.storycards.fragments.StoryDetailsFragment;
 import com.dhami.andy.storycards.listeners.FollowStateListener;
 import com.dhami.andy.storycards.models.StoryListData;
 import com.google.gson.Gson;
@@ -27,7 +27,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class StoryCardsListActivity extends AppCompatActivity implements FollowStateListener {
-    RecyclerView mRecyclerViewList;
+    ListView mListView;
     StoryCardsListAdapter mStoryCardsListAdapter;
     ArrayList<StoryListData> mData=new ArrayList<>();
     ArrayList<StoryListData> mStories=new ArrayList<>();
@@ -37,11 +37,8 @@ public class StoryCardsListActivity extends AppCompatActivity implements FollowS
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_story_cards_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        mRecyclerViewList = (RecyclerView) findViewById(R.id.story_cards_recycler_view);
+        mListView = (ListView) findViewById(R.id.story_cards_list_view);
         setSupportActionBar(toolbar);
-
-        mRecyclerViewList.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerViewList.setItemAnimator(new DefaultItemAnimator());
 
         mData=readJsonData();
 
@@ -53,9 +50,32 @@ public class StoryCardsListActivity extends AppCompatActivity implements FollowS
                 mStories.add(storyOrAuthor);
         }
 
+        //listview itemclick listener
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String authorName="",isFollowing="",authorId="";
+                for (StoryListData author:mAuthors) {
+                    if (author.getId().equals(mStories.get(position).getDb())) {
+                        authorId=author.getId();
+                        authorName=author.getUserName();
+                        isFollowing=String.valueOf(author.is_following());
+                        break;
+                    }
+                }
+
+                //instantiate and open newInstace of fragment
+                Fragment fragment = StoryDetailsFragment.newInstance(mStories.get(position).getTitle(), mStories.get(position).getDescription(), authorName, mStories.get(position).getSi(), isFollowing, authorId);
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, fragment, "detail_fragment").addToBackStack(null)
+                        .commit();
+            }
+        });
+
         //set adapter to recycler view
-        mStoryCardsListAdapter = new StoryCardsListAdapter(mStories, mAuthors,R.layout.story_cards_list_row, this,this);
-        mRecyclerViewList.setAdapter(mStoryCardsListAdapter);
+        mStoryCardsListAdapter = new StoryCardsListAdapter(mStories, mAuthors,R.layout.story_cards_list_row, this,this,mListView);
+        mListView.setAdapter(mStoryCardsListAdapter);
     }
 
     //read json data from file and parse using GSON

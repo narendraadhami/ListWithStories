@@ -2,20 +2,17 @@ package com.dhami.andy.storycards.adapters;
 
 import android.app.Activity;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import android.widget.RelativeLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dhami.andy.storycards.R;
-import com.dhami.andy.storycards.fragments.StoryDetailsFragment;
 import com.dhami.andy.storycards.listeners.FollowStateListener;
 import com.dhami.andy.storycards.models.StoryListData;
 import com.squareup.picasso.Picasso;
@@ -25,7 +22,7 @@ import java.util.ArrayList;
 /**
  * Created by andy on 15/03/16.
  */
-public class StoryCardsListAdapter extends RecyclerView.Adapter<StoryCardsListAdapter.ViewHolder> {
+public class StoryCardsListAdapter extends BaseAdapter {
 
     private   ArrayList<StoryListData> storyList = new ArrayList<>();
     private   ArrayList<StoryListData> authorList = new ArrayList<>();
@@ -33,24 +30,35 @@ public class StoryCardsListAdapter extends RecyclerView.Adapter<StoryCardsListAd
     private Activity mActivity;
     FollowStateListener mFollowStateListener;
     boolean flagForFollowState=false;
+    private ListView mListView;
+
 
     public StoryCardsListAdapter(ArrayList<StoryListData> storyList, ArrayList<StoryListData> authorList,
-                                 int rowLayout, Activity activity, FollowStateListener followStateListener) {
+                                 int rowLayout, Activity activity, FollowStateListener followStateListener,ListView listView) {
         this.storyList = storyList;
         this.authorList=authorList;
         this.rowLayout = rowLayout;
         this.mActivity = activity;
         mFollowStateListener=followStateListener;
+        this.mListView=listView;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(rowLayout, viewGroup, false);
-        return new ViewHolder(v);
-    }
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final ViewHolder viewHolder;
 
-    @Override
-    public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
+        if (convertView == null) {
+            convertView = LayoutInflater.from(mActivity).inflate(rowLayout, parent, false);
+            viewHolder = new ViewHolder();
+            viewHolder.mTitle=(TextView)convertView.findViewById(R.id.title);
+            viewHolder.mAuthorName=(TextView)convertView.findViewById(R.id.author_name);
+            viewHolder.mDescription=(TextView)convertView.findViewById(R.id.description);
+            viewHolder.mFollowBtn=(Button)convertView.findViewById(R.id.follow_btn);
+            viewHolder.mBackgroundImage=(ImageView)convertView.findViewById(R.id.background_img);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
         viewHolder.mTitle.setText(storyList.get(position).getTitle());
         viewHolder.mDescription.setText(storyList.get(position).getDescription());
 
@@ -82,53 +90,49 @@ public class StoryCardsListAdapter extends RecyclerView.Adapter<StoryCardsListAd
         viewHolder.mFollowBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                //get visible portion of list
+//                int first = mListView.getFirstVisiblePosition();
+//                int last = mListView.getLastVisiblePosition();
+//                if (position < first || position > last) {
+//                    for (StoryListData author:authorList){
+//                        if(author.getId().equals(storyList.get(position).getDb())) {
+//                            if(author.is_following())
+//                                author.setIs_following(false);
+//                            else
+//                                author.setIs_following(true);
+//                            break;
+//                        }
+//                    }
+//
+//                } else {
+//                    View convertView = mListView.getChildAt(position - first);
+//                    Button mFollowBtn = (Button) convertView.findViewById(R.id.follow_btn);
+//
+//                }
                 mFollowStateListener.followClick(storyList.get(position).getDb());
             }
         });
-
-        viewHolder.mCompleteRow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String authorName="",isFollowing="",id="";
-                for (StoryListData author:authorList) {
-                    if (author.getId().equals(storyList.get(position).getDb())) {
-                        id=author.getId();
-                        authorName=author.getUserName();
-                        isFollowing=String.valueOf(author.is_following());
-                        break;
-                    }
-                }
-
-                //instantiate and open newInstace of fragment
-                Fragment fragment = StoryDetailsFragment.newInstance(storyList.get(position).getTitle(),storyList.get(position).getDescription(), authorName, storyList.get(position).getSi(), isFollowing,id);
-                FragmentManager fragmentManager = mActivity.getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, fragment, "detail_fragment").addToBackStack(null)
-                        .commit();
-            }
-        });
+        return convertView;
     }
 
     @Override
-    public int getItemCount() {
-        return storyList == null ? 0 : storyList.size();
+    public int getCount() {
+        return storyList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    @Override
+    public Object getItem(int i) {
+        return i;
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
+    }
+
+    private static class ViewHolder {
         ImageView mBackgroundImage;
         TextView mTitle,mAuthorName,mDescription;
         Button mFollowBtn;
-        RelativeLayout mCompleteRow;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-
-            mTitle=(TextView)itemView.findViewById(R.id.title);
-            mAuthorName=(TextView)itemView.findViewById(R.id.author_name);
-            mDescription=(TextView)itemView.findViewById(R.id.description);
-            mFollowBtn=(Button)itemView.findViewById(R.id.follow_btn);
-            mBackgroundImage=(ImageView)itemView.findViewById(R.id.background_img);
-            mCompleteRow=(RelativeLayout)itemView.findViewById(R.id.background_rel);
-        }
     }
 }
