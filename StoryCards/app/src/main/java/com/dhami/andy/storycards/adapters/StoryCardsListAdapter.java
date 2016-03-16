@@ -1,8 +1,10 @@
 package com.dhami.andy.storycards.adapters;
 
 import android.app.Activity;
+import android.content.Intent;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +15,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dhami.andy.storycards.R;
-
+import com.dhami.andy.storycards.activities.StoryDetailsActivity;
+import com.dhami.andy.storycards.models.ParcelableModel;
 import com.dhami.andy.storycards.models.StoryListData;
 import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 /**
@@ -82,6 +86,24 @@ public class StoryCardsListAdapter extends RecyclerView.Adapter<StoryCardsListAd
             }
         });
 
+        viewHolder.mCompleteRow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String authorName="",isFollowing="";
+                Intent intent = new Intent(mActivity, StoryDetailsActivity.class);
+                ArrayList<ParcelableModel> tempList = new ArrayList<ParcelableModel>();
+                for (StoryListData author:authorList) {
+                    if (author.getId().equals(storyList.get(position).getDb())) {
+                        authorName=author.getUserName();
+                        isFollowing=String.valueOf(author.is_following());
+                        break;
+                    }
+                }
+                tempList.add(new ParcelableModel(storyList.get(position).getTitle(),storyList.get(position).getDescription(), authorName, storyList.get(position).getSi(), isFollowing));
+                intent.putParcelableArrayListExtra("detailsData", tempList);
+                mActivity.startActivity(intent);
+            }
+        });
     }
 
     @Override
