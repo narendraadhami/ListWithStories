@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dhami.andy.storycards.R;
+import com.dhami.andy.storycards.constants.AppConstants;
 import com.dhami.andy.storycards.listeners.FollowStateListener;
 import com.dhami.andy.storycards.models.StoryListData;
 import com.squareup.picasso.Picasso;
@@ -90,26 +91,30 @@ public class StoryCardsListAdapter extends BaseAdapter {
         viewHolder.mFollowBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                //get visible portion of list
-//                int first = mListView.getFirstVisiblePosition();
-//                int last = mListView.getLastVisiblePosition();
-//                if (position < first || position > last) {
-//                    for (StoryListData author:authorList){
-//                        if(author.getId().equals(storyList.get(position).getDb())) {
-//                            if(author.is_following())
-//                                author.setIs_following(false);
-//                            else
-//                                author.setIs_following(true);
-//                            break;
-//                        }
-//                    }
-//
-//                } else {
-//                    View convertView = mListView.getChildAt(position - first);
-//                    Button mFollowBtn = (Button) convertView.findViewById(R.id.follow_btn);
-//
-//                }
-                mFollowStateListener.followClick(storyList.get(position).getDb());
+//                // //update list without notifyDataSetChanged
+                int first = mListView.getFirstVisiblePosition();
+                int last = mListView.getLastVisiblePosition();
+                for (StoryListData author:authorList){
+                    if(author.getId().equals(storyList.get(position).getDb())) {
+                        if(author.is_following())
+                            author.setIs_following(false);
+                        else
+                            author.setIs_following(true);
+                    }
+                }
+
+                if (position > first || position < last) {
+                    if(viewHolder.mFollowBtn.getText().toString().equals(AppConstants.follow)) {
+                        viewHolder.mFollowBtn.setText(R.string.following);
+                        viewHolder.mFollowBtn.setTextColor(mActivity.getResources().getColor(android.R.color.holo_green_dark));
+                    } else {
+                        viewHolder.mFollowBtn.setText(R.string.follow);
+                        viewHolder.mFollowBtn.setTextColor(mActivity.getResources().getColor(android.R.color.holo_red_dark));
+                    }
+                }
+
+                //update list with notifyDataSetChanged
+              //  mFollowStateListener.followClick(storyList.get(position).getDb());
             }
         });
         return convertView;
