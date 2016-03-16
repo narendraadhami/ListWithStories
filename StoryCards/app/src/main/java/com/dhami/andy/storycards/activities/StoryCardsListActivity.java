@@ -1,5 +1,7 @@
 package com.dhami.andy.storycards.activities;
 
+import android.app.FragmentManager;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,10 +9,12 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.dhami.andy.storycards.R;
 import com.dhami.andy.storycards.adapters.StoryCardsListAdapter;
 import com.dhami.andy.storycards.constants.AppConstants;
+import com.dhami.andy.storycards.listeners.FollowStateListener;
 import com.dhami.andy.storycards.models.StoryListData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -22,7 +26,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-public class StoryCardsListActivity extends AppCompatActivity implements StoryCardsListAdapter.FollowStateListener{
+public class StoryCardsListActivity extends AppCompatActivity implements FollowStateListener {
     RecyclerView mRecyclerViewList;
     StoryCardsListAdapter mStoryCardsListAdapter;
     ArrayList<StoryListData> mData=new ArrayList<>();
@@ -101,5 +105,14 @@ public class StoryCardsListActivity extends AppCompatActivity implements StoryCa
             }
         }
         mStoryCardsListAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+            super.onBackPressed();
+        } else {
+            getFragmentManager().popBackStack();
+        }
     }
 }

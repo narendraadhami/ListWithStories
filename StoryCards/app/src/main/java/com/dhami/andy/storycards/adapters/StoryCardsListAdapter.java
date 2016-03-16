@@ -1,10 +1,10 @@
 package com.dhami.andy.storycards.adapters;
 
 import android.app.Activity;
-import android.content.Intent;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +15,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dhami.andy.storycards.R;
-import com.dhami.andy.storycards.activities.StoryDetailsActivity;
-import com.dhami.andy.storycards.models.ParcelableModel;
+import com.dhami.andy.storycards.fragments.StoryDetailsFragment;
+import com.dhami.andy.storycards.listeners.FollowStateListener;
 import com.dhami.andy.storycards.models.StoryListData;
 import com.squareup.picasso.Picasso;
 
@@ -89,19 +89,22 @@ public class StoryCardsListAdapter extends RecyclerView.Adapter<StoryCardsListAd
         viewHolder.mCompleteRow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String authorName="",isFollowing="";
-                Intent intent = new Intent(mActivity, StoryDetailsActivity.class);
-                ArrayList<ParcelableModel> tempList = new ArrayList<ParcelableModel>();
+                String authorName="",isFollowing="",id="";
                 for (StoryListData author:authorList) {
                     if (author.getId().equals(storyList.get(position).getDb())) {
+                        id=author.getId();
                         authorName=author.getUserName();
                         isFollowing=String.valueOf(author.is_following());
                         break;
                     }
                 }
-                tempList.add(new ParcelableModel(storyList.get(position).getTitle(),storyList.get(position).getDescription(), authorName, storyList.get(position).getSi(), isFollowing));
-                intent.putParcelableArrayListExtra("detailsData", tempList);
-                mActivity.startActivity(intent);
+
+                //instantiate and open newInstace of fragment
+                Fragment fragment = StoryDetailsFragment.newInstance(storyList.get(position).getTitle(),storyList.get(position).getDescription(), authorName, storyList.get(position).getSi(), isFollowing,id);
+                FragmentManager fragmentManager = mActivity.getFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, fragment, "detail_fragment").addToBackStack(null)
+                        .commit();
             }
         });
     }
@@ -127,11 +130,5 @@ public class StoryCardsListAdapter extends RecyclerView.Adapter<StoryCardsListAd
             mBackgroundImage=(ImageView)itemView.findViewById(R.id.background_img);
             mCompleteRow=(RelativeLayout)itemView.findViewById(R.id.background_rel);
         }
-    }
-
-    //create listener for follow click
-    public interface FollowStateListener {
-        // TODO: Update argument type and name
-        void followClick(String id);
     }
 }

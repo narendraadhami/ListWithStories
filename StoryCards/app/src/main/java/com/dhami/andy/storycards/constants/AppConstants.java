@@ -5,4 +5,5 @@ package com.dhami.andy.storycards.constants;
  */
 public interface AppConstants {
     String jsonFilePath="ios_android_data.json";
+    String follow="Follow";
 }
